@@ -1,59 +1,28 @@
 # 工作原理
 
-## 架构：一个 core + 两层薄适配
+## 架构
 
 ```
-                  ┌─ Claude Code ─────────────┐
-                  │  plugin hooks/hooks.json  │
-                  │  Stop hook → notify.sh    │ ── stdin JSON ──┐
-                  └───────────────────────────┘                  │
-                                                                 ▼
-                                                     ┌─────────────────────┐
-                  ┌─ Codex ───────────────────────┐  │  scripts/notify.sh  │
-                  │  ~/.codex/config.toml         │  │  (入口：探测来源)    │
-                  │  notify = [... notify.sh]     │ ── argv JSON ────▶ │
-                  └───────────────────────────────┘  └────────┬────────────┘
-                                                                │ source
-                                                                ▼
-                                                     ┌─────────────────────┐
-                                                     │  scripts/lib.sh     │
-                                                     │  归一化 / 文案 /    │
-                                                     │  摘要 / Bark + 重试  │
-                                                     └────────┬────────────┘
-                                                                │ POST
-                                                                ▼
-                                                     Bark (APNs) → iPhone / Apple Watch
+Claude Code Stop hook ──→ scripts/notify.sh ─→ scripts/lib.sh ─→ Bark (APNs) → iPhone / Watch
+                          (stdin JSON)        (文案/摘要/发送+重试)
 ```
 
-`notify.sh` 唯一职责是探测来源并 source `lib.sh`；所有逻辑在 `lib.sh`，工具无关。
+`notify.sh` 从 stdin 读 hook payload，source `lib.sh` 完成所有逻辑。
 
-## 触发源差异
+## hook payload
 
-| 项 | Claude Code | Codex |
-|----|-------------|-------|
-| 配置位置 | plugin `hooks/hooks.json` | `~/.codex/config.toml` 的 `notify` |
-| 数据传入 | **stdin** JSON | **argv 最后一个参数**（JSON）；stdin 为 null |
-| 事件 | `Stop`（含 `stop_hook_active`） | `agent-turn-complete`（目前仅此一种） |
-| 状态 | `done` / `action` 两态 | 只有 `done` |
-| 最后消息字段 | `last_assistant_message`（snake_case） | `last-assistant-message`（kebab-case） |
+Claude Code 的 Stop hook 通过 **stdin** 传 JSON，关键字段：
 
-## 入口探测
-
-```bash
-if [ $# -ge 1 ]; then     # Codex：payload 在最后一个 argv
-  payload=""; for a in "$@"; do payload="$a"; done
-else                       # Claude Code：payload 在 stdin
-  payload="$(cat)"
-fi
-```
-
-取最后一个 argv 用循环遍历（兼容 macOS 自带 bash 3.2，不用负数切片）。
+| 字段 | 说明 |
+|------|------|
+| `stop_hook_active` | `true` = 用户主动停止 / 需要授权（→ `action` 态）；`false` = 自然完成（→ `done` 态） |
+| `last_assistant_message` | Claude 最后那条回复，提取首行做任务摘要（官方推荐） |
+| `transcript_path` | 对话 JSONL 路径，`last_assistant_message` 为空时兜底 |
 
 ## 摘要提取
 
-- **Claude Code**：优先 `last_assistant_message`（官方推荐），`transcript_path` 仅兜底——transcript 是异步写的，Stop 触发时不保证已落盘。
-- **Codex**：`last-assistant-message`（kebab-case，用 python 取，避开 jq 对 `-` 当减法的坑）。
-- 清洗：去行首 markdown 前缀（`#`/`>`/`-`/`*`/`1.`/` ``` `），剥两端 `**`，截断 100 字（Apple Watch 屏幕小）。
+- 优先 `last_assistant_message`（官方推荐），`transcript_path` 仅兜底——transcript 是异步写的，Stop 触发时不保证已落盘
+- 清洗：去行首 markdown 前缀（`#`/`>`/`-`/`*`/`1.`/` ``` `），剥两端 `**`，截断 100 字（Apple Watch 屏幕小）
 
 ## 文案
 
@@ -75,7 +44,7 @@ $BARK_KEY (env)  →  $CLAUDE_PLUGIN_OPTION_BARK_KEY (plugin userConfig)  →
 ~/.config/agent-bark-notify/bark.key  →  ~/.claude/.bark-key (兼容旧路径)
 ```
 
-任一存在即用，都没有则静默退出。这让 Claude Code（plugin）和 Codex（文件/env）共用一套逻辑。
+任一存在即用，都没有则静默退出。
 
 ## 依赖
 

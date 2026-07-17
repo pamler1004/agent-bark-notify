@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# agent-bark-notify 核心库 —— 被 notify.sh source，工具无关
-# 支持 Claude Code (Stop hook, stdin JSON) 与 Codex (notify, argv JSON)
+# agent-bark-notify 核心库 —— 被 notify.sh source
+# Claude Code Stop hook 触发，payload 从 stdin 传入（JSON）
 # 唯一运行时依赖：bash 3.2+ 和 python3（用 python3 解析 JSON，不依赖 jq）
 
 # ---------------- 默认配置（可被环境变量覆盖）----------------
@@ -109,20 +109,6 @@ print(text)
   if [[ -n "$text" ]]; then printf '%s' "$text" | abn_clean_summary; fi
 }
 
-# ---------------- 从 Codex payload 提摘要（字段 kebab-case）----------------
-abn_summary_codex() {
-  local payload="$1" text
-  text=$(printf '%s' "$payload" | python3 -c '
-import sys, json
-try:
-    d = json.load(sys.stdin)
-except Exception:
-    d = {}
-print(d.get("last-assistant-message") or "")
-')
-  if [[ -n "$text" ]]; then printf '%s' "$text" | abn_clean_summary; fi
-}
-
 # ---------------- 文案加载 ----------------
 # 优先用户自定义 ~/.config/agent-bark-notify/messages.conf，否则打包默认
 abn_messages_file() {
@@ -181,18 +167,11 @@ PY
 
 # ---------------- 编排 ----------------
 abn_handle() {
-  local tool="$1" payload="$2"
-  abn_log "=== fire tool=$tool ==="
+  local payload="$1"
+  abn_log "=== fire ==="
 
-  local state summary
-  case "$tool" in
-    codex)
-      state="done"   # Codex notify 目前只支持 agent-turn-complete，无"需要操作"态
-      summary=$(abn_summary_codex "$payload")
-      ;;
-    *)
-      local active
-      active=$(printf '%s' "$payload" | python3 -c '
+  local state summary active
+  active=$(printf '%s' "$payload" | python3 -c '
 import sys, json
 try:
     d = json.load(sys.stdin)
@@ -200,10 +179,8 @@ except Exception:
     d = {}
 print("true" if d.get("stop_hook_active") is True else "false")
 ')
-      if [[ "$active" == "true" ]]; then state="action"; else state="done"; fi
-      summary=$(abn_summary_cc "$payload")
-      ;;
-  esac
+  if [[ "$active" == "true" ]]; then state="action"; else state="done"; fi
+  summary=$(abn_summary_cc "$payload")
 
   local pick title message group level body
   pick=$(abn_pick_message "$state")

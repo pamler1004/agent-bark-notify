@@ -1,6 +1,6 @@
 {
   "name": "agent-bark-notify",
-  "description": "Bark push notification to iPhone/Apple Watch when Claude Code / Codex CLI finishes a turn.",
+  "description": "Bark push notification to iPhone/Apple Watch when Claude Code finishes a turn.",
   "owner": {
     "name": "pamler1004",
     "url": "https://github.com/pamler1004"
@@ -9,7 +9,7 @@
     {
       "name": "agent-bark-notify",
       "source": ".",
-      "description": "Bark push notification to iPhone/Apple Watch when Claude Code finishes a turn. Also supports Codex CLI."
+      "description": "Bark push notification to iPhone/Apple Watch when Claude Code finishes a turn."
     }
   ]
 }

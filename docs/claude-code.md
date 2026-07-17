@@ -13,14 +13,16 @@
 
 > 帮我装 GitHub 上的 pamler1004/agent-bark-notify 通知插件，这是我的 Bark key：你的KEY
 
-Claude 会跑：
+Claude 会：
 
-```bash
-claude plugin marketplace add pamler1004/agent-bark-notify
-claude plugin install agent-bark-notify@agent-bark-notify --config bark_key=你的KEY
-```
+1. 装上 plugin：
+   ```bash
+   claude plugin marketplace add pamler1004/agent-bark-notify
+   claude plugin install agent-bark-notify@agent-bark-notify
+   ```
+2. 把 key 写进 `~/.config/agent-bark-notify/bark.key`（plugin 每次触发都读它，改 key 即时生效）
 
-`--config` 把 key 写进 plugin 配置，和交互式弹框走同一条存储路径（sensitive 字段进 macOS Keychain，不落明文）。填完即生效。
+> ⚠️ `claude plugin install --config bark_key=…` 这个 flag **当前版本（v2.1.212）不生效**（key 设不进 userConfig），所以用 `bark.key` 文件兜底。也可装完在 Claude Code 里跑 `/plugin configure agent-bark-notify@agent-bark-notify` 手动填 key（进 Keychain）。
 
 ### 方式二：手动斜杠命令
 
