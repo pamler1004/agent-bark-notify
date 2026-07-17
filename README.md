@@ -34,14 +34,25 @@ Codex notify ───────────────┘   (探测来源)  
 
 ## Claude Code 安装
 
-在 Claude Code 会话里：
+**最快——让 Claude 替你装**：把 Bark key 发给 Claude，说一句：
+
+> 帮我装 GitHub 上的 pamler1004/agent-bark-notify 通知插件，这是我的 Bark key：你的KEY
+
+Claude 会跑这两条命令，key 自动进 macOS Keychain：
+
+```bash
+claude plugin marketplace add pamler1004/agent-bark-notify
+claude plugin install agent-bark-notify@agent-bark-notify --config bark_key=你的KEY
+```
+
+**或手动装**（在 Claude Code 会话里）：
 
 ```
 /plugin marketplace add pamler1004/agent-bark-notify
 /plugin install agent-bark-notify@agent-bark-notify
 ```
 
-安装时填 Bark device key（进 macOS Keychain）。完事。
+装完弹框填 Bark device key。完事。
 
 → 详见 [docs/claude-code.md](docs/claude-code.md)
 

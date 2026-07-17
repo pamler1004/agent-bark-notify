@@ -5,18 +5,33 @@
 1. iPhone 装 [Bark](https://apps.apple.com/us/app/bark-custom-notifications/id1403753865)
 2. 打开 Bark，复制你的 **device key**（首页那串，URL 里 `api.day.app/` 后面的部分）
 
-## 安装（plugin marketplace，推荐）
+## 安装
 
-在 Claude Code 会话里依次执行：
+### 方式一：让 Claude 替你装（最省事）
+
+把 Bark key 发给 Claude，说一句：
+
+> 帮我装 GitHub 上的 pamler1004/agent-bark-notify 通知插件，这是我的 Bark key：你的KEY
+
+Claude 会跑：
+
+```bash
+claude plugin marketplace add pamler1004/agent-bark-notify
+claude plugin install agent-bark-notify@agent-bark-notify --config bark_key=你的KEY
+```
+
+`--config` 把 key 写进 plugin 配置，和交互式弹框走同一条存储路径（sensitive 字段进 macOS Keychain，不落明文）。填完即生效。
+
+### 方式二：手动斜杠命令
+
+在 Claude Code 会话里：
 
 ```
 /plugin marketplace add pamler1004/agent-bark-notify
 /plugin install agent-bark-notify@agent-bark-notify
 ```
 
-安装时会让你填 Bark device key（存进 macOS Keychain，不落明文）。填完即生效。
-
-> 也可以让 Agent 替你装：直接说「帮我装 pamler1004/agent-bark-notify 这个通知 plugin」，Agent 会跑对应的 `claude plugin` CLI 子命令。
+装完弹框填 key。
 
 ## 工作原理
 
@@ -31,6 +46,7 @@ plugin 不碰你的 `~/.claude/settings.json`，与你已有的 Stop hook 叠加
 | `bark_key` | 必填，Bark device key（敏感，进 Keychain） | — |
 | `bark_server` | 自建 Bark 服务地址 | `https://api.day.app` |
 | `sound` | iOS 提示音名（如 `calypso`） | 空（用 app 默认） |
+| `icon` | 通知图标图片 URL（HTTPS） | 空（用 app 默认） |
 
 改配置：`/plugin` 菜单里编辑该 plugin 的 userConfig。
 

@@ -33,7 +33,7 @@ abn_resolve_sound() {
   printf '%s' "${CLAUDE_PLUGIN_OPTION_SOUND:-${BARK_SOUND:-$DEFAULT_SOUND}}"
 }
 abn_resolve_icon() {
-  printf '%s' "${BARK_ICON:-$DEFAULT_ICON}"
+  printf '%s' "${CLAUDE_PLUGIN_OPTION_ICON:-${BARK_ICON:-$DEFAULT_ICON}}"
 }
 
 # ---------------- 冷却 ----------------
