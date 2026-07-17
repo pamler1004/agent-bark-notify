@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# 编辑器
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# ⚠️ 绝不提交 Bark device key 或任何凭据
+*.key
+bark.key
+.bark-key
+.credentials.json
+secrets.*
+.env
+.env.*
+
+# 本地测试 / 运行产物
+*.log
+/tmp/

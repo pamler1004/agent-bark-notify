@@ -1,0 +1,26 @@
+{
+  "name": "agent-bark-notify",
+  "version": "0.1.0",
+  "description": "Bark push notification to iPhone/Apple Watch when Claude Code finishes a turn. Also supports Codex CLI.",
+  "userConfig": {
+    "bark_key": {
+      "type": "string",
+      "title": "Bark device key",
+      "description": "打开 iPhone 上的 Bark app，复制 device key（URL 里 api.day.app/ 后面那串）",
+      "sensitive": true,
+      "required": true
+    },
+    "bark_server": {
+      "type": "string",
+      "title": "Bark server URL",
+      "description": "自建 Bark 服务地址；留空用官方 https://api.day.app",
+      "default": "https://api.day.app"
+    },
+    "sound": {
+      "type": "string",
+      "title": "Sound name (optional)",
+      "description": "iOS 提示音名（如 calypso）；留空用 Bark app 默认",
+      "default": ""
+    }
+  }
+}

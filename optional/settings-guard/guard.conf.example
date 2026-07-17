@@ -1,0 +1,16 @@
+# agent-bark-notify settings-guard 配置
+#
+# 每行 3 段，用 TAB 分隔：  jq路径 <TAB> 策略 <TAB> 期望值(JSON)
+# 策略：
+#   missing = 仅在字段缺失/为空时补回（不动你已有的值）
+#   change  = 字段存在但偏离期望就纠正（激进，适合"绝不允许被改"的字段）
+#   both    = 缺失或偏离都纠正
+#
+# 期望值里的 $HOME 会被自动展开。
+# 改成本人要保护的字段后保存，下次 settings.json 变动即生效。
+
+# 示例 1：statusLine 被改回别的就纠正（防 statusline-setup agent / 升级覆盖）
+.statusLine	change	{"type":"command","command":"bash $HOME/.claude/statusline.sh"}
+
+# 示例 2：手写的 Stop hook 被丢/被改都补回（取消注释并改成你的命令）
+# .hooks.Stop	both	[{"matcher":"","hooks":[{"type":"command","command":"bash $HOME/.claude/scripts/your-hook.sh","timeout":10}]}]

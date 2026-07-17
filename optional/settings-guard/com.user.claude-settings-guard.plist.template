@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- agent-bark-notify settings-guard: 事件驱动（WatchPaths），不是定时轮询 -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>__LABEL__</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>__GUARD_SH__</string>
+    </array>
+    <key>WatchPaths</key>
+    <array>
+        <string>__SETTINGS_JSON__</string>
+    </array>
+    <key>ThrottleInterval</key>
+    <integer>3</integer>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
