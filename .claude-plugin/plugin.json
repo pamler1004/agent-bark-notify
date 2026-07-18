@@ -29,8 +29,8 @@
     "icon": {
       "type": "string",
       "title": "Icon URL (optional)",
-      "description": "通知图标图片 URL（HTTPS）；留空用 Bark app 默认图标",
-      "default": ""
+      "description": "通知图标图片 URL（HTTPS）；不填用插件内置图标",
+      "default": "https://raw.githubusercontent.com/pamler1004/agent-bark-notify/main/assets/icon.png"
     }
   }
 }
