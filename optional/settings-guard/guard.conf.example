@@ -1,16 +1,25 @@
-# agent-bark-notify settings-guard 配置
+# agent-bark-notify settings-guard 默认配置
+# 保护 agent-bark-notify 相关字段，防被 cc-switch/CC 升级冲掉 settings.json
 #
-# 每行 3 段，用 TAB 分隔：  jq路径 <TAB> 策略 <TAB> 期望值(JSON)
-# 策略：
-#   missing = 仅在字段缺失/为空时补回（不动你已有的值）
-#   change  = 字段存在但偏离期望就纠正（激进，适合"绝不允许被改"的字段）
-#   both    = 缺失或偏离都纠正
-#
-# 期望值里的 $HOME 会被自动展开。
-# 改成本人要保护的字段后保存，下次 settings.json 变动即生效。
+# 每行 3 段 TAB 分隔：jq路径 <TAB> 策略 <TAB> 期望值(JSON)
+# 策略：missing=缺才补 / change=偏就纠 / both=缺或偏都纠
+# $HOME 自动展开
 
-# 示例 1：statusLine 被改回别的就纠正（防 statusline-setup agent / 升级覆盖）
-.statusLine	change	{"type":"command","command":"bash $HOME/.claude/statusline.sh"}
+# --- agent-bark-notify 核心字段（所有用户通用，建议保留）---
 
-# 示例 2：手写的 Stop hook 被丢/被改都补回（取消注释并改成你的命令）
-# .hooks.Stop	both	[{"matcher":"","hooks":[{"type":"command","command":"bash $HOME/.claude/scripts/your-hook.sh","timeout":10}]}]
+# plugin 启用状态（被冲掉会导致 hook 不触发、没通知）
+.enabledPlugins	both	{"agent-bark-notify@agent-bark-notify":true}
+
+# marketplace 源（被冲掉下次重装要重新 add）
+.extraKnownMarketplaces	both	{"agent-bark-notify":{"source":{"source":"github","repo":"pamler1004/agent-bark-notify"}}}
+
+# 通知图标（plugin 内置图标 raw URL，被冲掉回退 Bark 默认）
+.env.BARK_ICON	both	"https://raw.githubusercontent.com/pamler1004/agent-bark-notify/main/assets/icon.png"
+
+# --- 个人偏好字段（按需取消注释改成你自己的）---
+
+# 通知声音（如 calypso；不填用 Bark app 默认）
+# .env.BARK_SOUND	both	"calypso"
+
+# 自定义 statusLine（防 cc-switch/升级覆盖；改成你自己的 statusLine）
+# .statusLine	change	{"type":"command","command":"bash $HOME/.claude/statusline.sh"}
