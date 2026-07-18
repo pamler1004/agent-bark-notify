@@ -40,11 +40,15 @@ Claude Code 的 Stop hook 通过 **stdin** 传 JSON，关键字段：
 ## Bark key 优先级链
 
 ```
-$BARK_KEY (env)  →  $CLAUDE_PLUGIN_OPTION_BARK_KEY (plugin userConfig)  →
-~/.config/agent-bark-notify/bark.key  →  ~/.claude/.bark-key (兼容旧路径)
+$BARK_KEY (env)  →  ~/.config/agent-bark-notify/bark.key (文件，主路径)  →
+$CLAUDE_PLUGIN_OPTION_BARK_KEY (plugin userConfig)  →  ~/.claude/.bark-key (兼容旧路径)
 ```
 
 任一存在即用，都没有则静默退出。
+
+**为什么文件优先于 userConfig**：`bark.key` 是你主动写的、代表当前意图；userConfig 存 Keychain、**跨卸载/重装不清**，只作备选。两者同时存在且不一致时（典型场景：重装后只改了文件、旧 userConfig 还赖着），脚本打 WARNING 并用文件——不再像旧版那样静默让旧 userConfig 覆盖新文件。
+
+每次发送会在 `/tmp/agent-bark-notify.log` 记一条 `send: key=XXXX***`（脱敏前 4 位），一眼看出实际用的是哪个 key。这是排查「日志全绿、手机收不到」的第一判据——Bark 服务器对错 key 都回 `200 success`，只有 key 前缀不会骗人。
 
 ## 依赖
 

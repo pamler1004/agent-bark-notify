@@ -23,6 +23,8 @@ Claude 会：
 2. 把 key 写进 `~/.config/agent-bark-notify/bark.key`（plugin 每次触发都读它，改 key 即时生效）
 
 > ⚠️ `claude plugin install --config bark_key=…` 这个 flag **当前版本（v2.1.212）不生效**（key 设不进 userConfig），所以用 `bark.key` 文件兜底。也可装完在 Claude Code 里跑 `/plugin configure agent-bark-notify@agent-bark-notify` 手动填 key（进 Keychain）。
+>
+> ⚠️ **换 key 注意**：`/plugin configure` 配的 key 存 Keychain，**跨卸载/重装不清**。换 key 直接改 `bark.key` 文件即可（文件优先级高于 userConfig）；若你以前配过 userConfig、想彻底干净，`/plugin configure` 把 bark_key 清空。两者不一致时脚本会在 `/tmp/agent-bark-notify.log` 打 WARNING，不再静默用旧 key。
 
 ### 方式二：手动斜杠命令
 

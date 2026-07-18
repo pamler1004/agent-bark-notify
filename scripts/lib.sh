@@ -17,12 +17,30 @@ ABN_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 abn_log() { echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$LOG_FILE" 2>/dev/null || true; }
 
 # ---------------- Bark key / server / sound 优先级链 ----------------
-# key: 环境变量 BARK_KEY > Claude Code plugin userConfig > ~/.config/agent-bark-notify/bark.key > ~/.claude/.bark-key（兼容旧路径）
+# key: 环境变量 BARK_KEY > bark.key 文件（README 主路径）> plugin userConfig > ~/.claude/.bark-key（兼容旧路径）
+# 设计：bark.key 文件是用户主动写的、当真相源；userConfig 存 Keychain、跨卸载/重装不清，
+#       只作备选。两者同时存在且不一致时打 WARNING，不静默选——防「重装换 key 只改文件、
+#       被旧 userConfig 静默覆盖、Bark 又对错 key 都回 200」这种组合雷（收不到但日志全绿）。
 abn_resolve_key() {
-  if [[ -n "${BARK_KEY:-}" ]]; then printf '%s' "$BARK_KEY"; return 0; fi
-  if [[ -n "${CLAUDE_PLUGIN_OPTION_BARK_KEY:-}" ]]; then printf '%s' "$CLAUDE_PLUGIN_OPTION_BARK_KEY"; return 0; fi
   local user_conf="${XDG_CONFIG_HOME:-$HOME/.config}/agent-bark-notify/bark.key"
-  if [[ -f "$user_conf" ]]; then cat "$user_conf" 2>/dev/null; return 0; fi
+  local opt_key="${CLAUDE_PLUGIN_OPTION_BARK_KEY:-}"
+  # 1. 环境变量（测试/临时覆盖，最高优先级）
+  if [[ -n "${BARK_KEY:-}" ]]; then printf '%s' "$BARK_KEY"; return 0; fi
+  # 2. bark.key 文件（主路径）
+  if [[ -f "$user_conf" ]]; then
+    local file_key
+    file_key="$(cat "$user_conf" 2>/dev/null)"
+    if [[ -n "$file_key" ]]; then
+      # 冲突检测：userConfig 也配了 key 且和文件不一致 → 警告，不静默选
+      if [[ -n "$opt_key" && "$opt_key" != "$file_key" ]]; then
+        abn_log "WARN: bark.key 文件与 plugin userConfig 的 key 不一致——用文件的 [${file_key:0:4}***]，忽略 userConfig 的 [${opt_key:0:4}***]。想彻底干净：/plugin configure agent-bark-notify@agent-bark-notify 清掉 bark_key"
+      fi
+      printf '%s' "$file_key"; return 0
+    fi
+  fi
+  # 3. plugin userConfig（/plugin configure 配的，存 Keychain，跨重装不清）
+  if [[ -n "$opt_key" ]]; then printf '%s' "$opt_key"; return 0; fi
+  # 4. 兼容旧路径
   if [[ -f "$HOME/.claude/.bark-key" ]]; then cat "$HOME/.claude/.bark-key" 2>/dev/null; return 0; fi
   return 1
 }
@@ -138,6 +156,7 @@ abn_send_bark() {
   local key server sound icon
   key=$(abn_resolve_key) || { abn_log "ERROR: no bark key found"; return 1; }
   server=$(abn_resolve_server)
+  abn_log "send: key=${key:0:4}*** server=$server"
   sound=$(abn_resolve_sound)
   icon=$(abn_resolve_icon)
   TITLE="$title" BODY="$body" GROUP="$group" LEVEL="$level" SOUND="$sound" ICON="$icon" SERVER="$server" KEY="$key" python3 <<'PY'
