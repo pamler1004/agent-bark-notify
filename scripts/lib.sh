@@ -186,6 +186,10 @@ print("true" if d.get("stop_hook_active") is True else "false")
   pick=$(abn_pick_message "$state")
   title="${pick%%|*}"
   message="${pick#*|}"
+  # 标题 + 正文合并成更详细的一句标题
+  if [[ -n "$message" && "$message" != "$pick" ]]; then
+    title="$title，$message"
+  fi
 
   if [[ "$state" == "action" ]]; then
     group="agent-action"; level="timeSensitive"   # 突破勿扰
@@ -193,10 +197,7 @@ print("true" if d.get("stop_hook_active") is True else "false")
     group="agent-done"; level="active"
   fi
 
-  body="$message"
-  if [[ -n "$summary" ]]; then
-    body="$message"$'\n\n'"$summary"
-  fi
+  body="$summary"   # 正文只放任务摘要（文案已在标题里）
 
   if ! abn_check_cooldown; then abn_log "cooldown, skip"; return 0; fi
 
