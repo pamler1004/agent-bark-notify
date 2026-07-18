@@ -74,28 +74,42 @@ mkdir -p ~/.config/agent-bark-notify && echo '你的KEY' > ~/.config/agent-bark-
 
 ## 自定义文案
 
-默认文案是中性的。想换成自己的风格：
+通知文案分两种情况，每次随机抽一条：
 
-```bash
-mkdir -p ~/.config/agent-bark-notify
-# 在默认基础上改：
-cp config/messages.default.conf ~/.config/agent-bark-notify/messages.conf
-# 或参考作者那套"皮"的风格再改：
-cp config/messages.example.conf ~/.config/agent-bark-notify/messages.conf
-```
+- **任务完成**（done）：Claude 做完停下时
+- **需要操作**（action）：Claude 等你授权或回复时
 
-编辑 `messages.conf`，格式：
+**默认文案**（中性风）长这样：
 
 ```
 [done]
 任务完成|已完成，等你检阅
 搞定|结果已就绪
+收工|Claude 完成了一轮
+任务结束|Claude 停下了，随时回来
+完成|需要的话回来验收
 
 [action]
 需要确认|有个操作等你授权
+等你回复|需要你的输入
+需要出手|卡住了，回来看看
 ```
 
-`[done]` = 任务完成；`[action]` = Claude Code 需要授权时。每行 `标题|正文`（推送时合并成一句标题），随机抽一条。改完即时生效（每次触发都重新读取）。
+想换成自己的风格：
+
+1. 把上面的内容复制粘贴到 `~/.config/agent-bark-notify/messages.conf`（想直接用作者那套「皮」的风格——舔狗/摆烂/暧昧/暴躁/发疯——看 [messages.example.conf](config/messages.example.conf)）
+2. 改成你想要的词，保存
+
+```bash
+mkdir -p ~/.config/agent-bark-notify
+nano ~/.config/agent-bark-notify/messages.conf   # 或 open -e（macOS 文本编辑）
+```
+
+**格式规则**：
+- `[done]` 下面是「任务完成」的文案，`[action]` 下面是「需要操作」的文案
+- 每行 `标题|正文`，竖线 `|` 分隔（推送时两者合并成一句标题显示）
+- `#` 开头是注释，空行忽略
+- 改完**即时生效**（每次推送都重新读这个文件，不用重启）
 
 ## 可选：settings-guard 守卫（保护 settings.json 的其他配置）
 
