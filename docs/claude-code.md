@@ -50,7 +50,7 @@ plugin 不碰你的 `~/.claude/settings.json`，与你已有的 Stop hook 叠加
 | `bark_key` | 必填，Bark device key（敏感，进 Keychain） | — |
 | `bark_server` | 自建 Bark 服务地址 | `https://api.day.app` |
 | `sound` | iOS 提示音名（如 `calypso`） | 空（用 app 默认） |
-| `icon` | 通知图标图片 URL（HTTPS） | 空（用 app 默认） |
+| `icon` | 通知图标图片 URL（HTTPS） | 内置图标（repo `assets/icon.png`） |
 
 改配置：`/plugin` 菜单里编辑该 plugin 的 userConfig。
 
