@@ -37,9 +37,9 @@ Claude Code Stop hook ──→ scripts/notify.sh ─→ scripts/lib.sh ─→ B
 
 **最快——让 Claude 替你装**：把 Bark key 发给 Claude，说一句：
 
-> 帮我装 GitHub 上的 pamler1004/agent-bark-notify 通知插件，这是我的 Bark key：你的KEY
+> 帮我装 GitHub 上的 pamler1004/agent-bark-notify 通知插件，这是我的 Bark key：你的KEY。装完告诉我结果，并说一下它附带的可选 settings-guard 模块我需不需要。
 
-Claude 会：
+Claude 装完会顺带看一眼你的 `settings.json`（有没有用 cc-switch、有没有自定义 statusLine/permissions 等），告诉你需不需要 settings-guard，不会硬塞。
 
 1. 跑这三条装上 plugin 并启用：
    ```bash
@@ -125,16 +125,19 @@ nano ~/.config/agent-bark-notify/messages.conf   # 或 open -e（macOS 文本编
 
 ## 卸载
 
-```bash
-# 1. 卸载 plugin（CLI 或 REPL 二选一）
-claude plugin uninstall agent-bark-notify@agent-bark-notify      # CLI
-# 或在 Claude Code 里：/plugin uninstall agent-bark-notify
+在 Claude Code 里跑：
 
-# 2. 清理本地 key 和自定义文案（可选，不删也无害）
+```
+/plugin uninstall agent-bark-notify
+```
+
+再清理本地 key 和自定义文案（可选，不删也无害）：
+
+```bash
 rm -rf ~/.config/agent-bark-notify
 ```
 
-卸载后重启 Claude Code 会话，Stop hook 彻底移除。
+重启 Claude Code 会话，Stop hook 彻底移除。
 
 ## FAQ
 
