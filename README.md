@@ -125,19 +125,11 @@ nano ~/.config/agent-bark-notify/messages.conf   # 或 open -e（macOS 文本编
 
 ## 卸载
 
-在 Claude Code 里跑：
+跟 Claude 说一句（和安装对称，一步搞定）：
 
-```
-/plugin uninstall agent-bark-notify
-```
+> 帮我卸载 agent-bark-notify 通知插件，本地配置也清掉。
 
-再清理本地 key 和自定义文案（可选，不删也无害）：
-
-```bash
-rm -rf ~/.config/agent-bark-notify
-```
-
-重启 Claude Code 会话，Stop hook 彻底移除。
+Claude 会卸 plugin、删 `~/.config/agent-bark-notify/`（bark.key 和自定义文案都在里面）。重启 Claude Code 会话，Stop hook 彻底移除。
 
 ## FAQ
 
