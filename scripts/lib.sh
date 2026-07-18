@@ -82,8 +82,8 @@ for ln in t.split("\n"):
 candidate = re.sub(r"^\s*(#{1,6}\s*|>\s*|[-*+]\s+|\d+\.\s+)+", "", candidate)
 candidate = candidate.strip(bt).strip()
 candidate = re.sub(r"^\*\*(.+?)\*\*$", r"\1", candidate).strip()
-if len(candidate) > 55:
-    candidate = candidate[:55] + "..."
+if len(candidate) > 65:
+    candidate = candidate[:65] + "..."
 print(candidate)
 '
 }
