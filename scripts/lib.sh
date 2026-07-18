@@ -187,8 +187,9 @@ print("true" if d.get("stop_hook_active") is True else "false")
   title="${pick%%|*}"
   message="${pick#*|}"
   # 标题 + 正文合并成更详细的一句标题
+  # 用 ${title} 花括号界定——macOS bash 3.2 对「$变量 + 字面多字节字符」的拼接有 bug 会吞字节
   if [[ -n "$message" && "$message" != "$pick" ]]; then
-    title="$title，$message"
+    title="${title}，${message}"
   fi
 
   if [[ "$state" == "action" ]]; then
