@@ -126,11 +126,18 @@ nano ~/.config/agent-bark-notify/messages.conf   # 或 open -e（macOS 文本编
 
 ## 卸载
 
-跟 Claude 说一句（和安装对称，一步搞定）：
+跟 Claude 说一句（和安装对称，一键搞定）：
 
-> 帮我卸载 agent-bark-notify 通知插件，本地配置也清掉。
+> 帮我完全卸载 agent-bark-notify 插件，本地配置和缓存都清掉。
 
-Claude 会卸 plugin、删 `~/.config/agent-bark-notify/`（bark.key 和自定义文案都在里面）。重启 Claude Code 会话，Stop hook 彻底移除。
+Claude 会跑这几步：
+
+1. `claude plugin uninstall agent-bark-notify@agent-bark-notify` -- 卸 plugin 注册
+2. `rm -rf ~/.config/agent-bark-notify/` -- 删 bark.key、自定义文案
+3. `rm -rf ~/.claude/plugins/cache/agent-bark-notify/` -- 删脚本缓存残留
+4. **重启 Claude Code 会话** -- 移除内存里的 Stop hook
+
+marketplace 源（`agent-bark-notify`）保留，下次重装不用重新 `add`。这样卸完再装是全新状态--旧 key、旧文案、旧缓存全清，无残留干扰；即便 userConfig 里偶尔残留旧 bark_key，v0.4.1 起文件优先级高于 userConfig，重装后写 `bark.key` 即可，不影响推送。
 
 ## FAQ
 
