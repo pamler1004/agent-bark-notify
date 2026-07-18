@@ -1,13 +1,13 @@
 # agent-bark-notify
 
-> Claude Code 任务完成时，Bark 推送到 iPhone 和 Apple Watch——通知正文还带一句话任务摘要。
+> Claude Code 任务完成时，Bark 推送到 iPhone 和 Apple Watch——通知标题是随机文案，下面跟一句话任务摘要。
 
-离开电脑去倒水，Claude 把活干完了你却不知道。这个项目让 Claude Code 一停下，你的手腕就震一下，还能从通知正文看到它**刚干完了什么**。
+离开电脑去倒水，Claude 把活干完了你却不知道。这个项目让 Claude Code 一停下，你的手腕就震一下，还能从通知看到它**刚干完了什么**。
 
 ## 特性
 
 - 🍎 走 Bark → APNs 系统级推送，App 关了也能收；Apple Watch 戴手上时优先震手腕
-- 📝 通知正文带**任务摘要**（Claude 最后那条回复的首行），扫一眼就知道干了啥
+- 📝 通知带**任务摘要**（Claude 最后那条回复的首行），扫一眼就知道干了啥
 - 🎭 文案可自定义（默认中性，另附 5 套风格示例：舔狗 / 摆烂 / 暧昧 / 暴躁 / 发疯）
 - 🔔 Claude Code「需要授权」用 `timeSensitive` 级别，**突破勿扰模式**
 - 🛡️ **切换模型不影响推送**——hook 走 plugin 系统、不在 `settings.json`，cc-switch / `/model` / 升级都覆盖不到（不用再装看门狗）
@@ -41,14 +41,17 @@ Claude Code Stop hook ──→ scripts/notify.sh ─→ scripts/lib.sh ─→ B
 
 Claude 会：
 
-1. 跑这两条装上 plugin：
+1. 跑这三条装上 plugin 并启用：
    ```bash
    claude plugin marketplace add pamler1004/agent-bark-notify
    claude plugin install agent-bark-notify@agent-bark-notify
+   claude plugin enable agent-bark-notify@agent-bark-notify   # install 不自动 enable，必须显式 enable
    ```
 2. 把 key 写进 `~/.config/agent-bark-notify/bark.key`（plugin 每次触发都读它，改 key 即时生效）
 
-> ⚠️ `claude plugin install --config bark_key=…` 这个 flag **当前版本（v2.1.212）不生效**（key 设不进 userConfig），所以用 `bark.key` 文件兜底。也可以装完在 Claude Code 里跑 `/plugin configure agent-bark-notify@agent-bark-notify` 手动填 key（进 Keychain）。
+> ⚠️ **两个必踩的坑**：
+> - `claude plugin install --config bark_key=…` 当前版本（v2.1.212）**不生效**（key 设不进 userConfig），所以用 `bark.key` 文件兜底。也可装完跑 `/plugin configure agent-bark-notify@agent-bark-notify` 手动填 key（进 Keychain）。
+> - `install` 只装不 `enable`，hook 不会加载。`enable` 之后还得**重启 Claude Code 会话**（plugin hook 是启动时加载的，本次会话进程不重启不生效）。
 
 **或手动装**（在 Claude Code 会话里）：
 
@@ -63,7 +66,9 @@ Claude 会：
 mkdir -p ~/.config/agent-bark-notify && echo '你的KEY' > ~/.config/agent-bark-notify/bark.key
 ```
 
-或在 Claude Code 里 `/plugin configure agent-bark-notify@agent-bark-notify` 填 key。完事。
+或在 Claude Code 里 `/plugin configure agent-bark-notify@agent-bark-notify` 填 key。
+
+> 别忘了 `/plugin` 菜单里把 plugin **enable**，然后重启会话。
 
 → 详见 [docs/claude-code.md](docs/claude-code.md)
 
@@ -83,14 +88,14 @@ cp config/messages.example.conf ~/.config/agent-bark-notify/messages.conf
 
 ```
 [done]
-🎉 搞定了！|快来看看成果吧
-✨ 任务完成！|等你检阅
+任务完成|已完成，等你检阅
+搞定|结果已就绪
 
 [action]
-⚠️ 需要确认|有个操作等你授权
+需要确认|有个操作等你授权
 ```
 
-`[done]` = 任务完成；`[action]` = Claude Code 需要授权时。每行 `标题|正文`，随机抽一条。改完即时生效（每次触发都重新读取）。
+`[done]` = 任务完成；`[action]` = Claude Code 需要授权时。每行 `标题|正文`（推送时合并成一句标题），随机抽一条。改完即时生效（每次触发都重新读取）。
 
 ## 可选：settings-guard 守卫（保护 settings.json 的其他配置）
 
@@ -106,7 +111,16 @@ cp config/messages.example.conf ~/.config/agent-bark-notify/messages.conf
 
 ## 卸载
 
-`/plugin uninstall agent-bark-notify`
+```bash
+# 1. 卸载 plugin（CLI 或 REPL 二选一）
+claude plugin uninstall agent-bark-notify@agent-bark-notify      # CLI
+# 或在 Claude Code 里：/plugin uninstall agent-bark-notify
+
+# 2. 清理本地 key 和自定义文案（可选，不删也无害）
+rm -rf ~/.config/agent-bark-notify
+```
+
+卸载后重启 Claude Code 会话，Stop hook 彻底移除。
 
 ## FAQ
 
@@ -119,11 +133,18 @@ cp config/messages.example.conf ~/.config/agent-bark-notify/messages.conf
 **Q：依赖什么？**
 bash 和 python3（macOS 自带），零额外安装。settings-guard 可选模块需要 `jq`（`brew install jq`）。
 
-**Q：通知正文带什么？**
-标题是随机文案（如「🎉 搞定了！」），正文是文案 + 任务摘要（Claude 最后回复的首行，≤100 字，已清洗 markdown 前缀）。
+**Q：通知长什么样？**
+**标题**是随机文案（标题+正文合并成一句，如「任务完成，已完成，等你检阅」），下面跟**任务摘要**（Claude 最后回复的首行，≤100 字，已清洗 markdown 前缀）。
 
 **Q：Bark key 安全吗？**
 Claude Code plugin 存 macOS Keychain（不落明文）。device key 本质是个推送 token，谁拿到都能往你设备推，**别公开**。
+
+**Q：装完没收到通知？**
+按顺序排查：① `/plugin` 菜单确认 plugin 是 **enabled**（install 不自动 enable）；② **重启 Claude Code 会话**（hook 启动时加载）；③ 确认 `~/.config/agent-bark-notify/bark.key` 在；④ 手动测链路：
+```bash
+echo '{"stop_hook_active":false,"last_assistant_message":"test"}' | ~/.claude/plugins/cache/agent-bark-notify/agent-bark-notify/*/scripts/notify.sh
+```
+手机收到 = 脚本通，问题在 hook 没触发（回看 ①②）；没收到 = 看 `/tmp/agent-bark-notify.log`。
 
 **Q：发送失败怎么办？**
 脚本对网络/SSL 抖动重试 2 次（单次 3s + 间隔 0.5s，最坏 6.5s 内完成）。
