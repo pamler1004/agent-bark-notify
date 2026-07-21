@@ -8,7 +8,7 @@
 
 - 🍎 走 Bark → APNs 系统级推送，App 关了也能收；Apple Watch 戴手上时优先震手腕
 - 📝 通知带**任务摘要**（Claude 最后那条回复的首行），扫一眼就知道干了啥
-- 🎭 文案可自定义（默认中性，另附 5 套风格示例：舔狗 / 摆烂 / 暧昧 / 暴躁 / 发疯）
+- 🎭 文案可自定义（默认中性，另附个人风格示例：舔狗 / 摆烂 / 暴躁 / 发疯等混搭）
 - 🎨 内置通知图标（可换），开箱即用不用配
 - 🔔 Claude Code「需要授权」用 `timeSensitive` 级别，**突破勿扰模式**
 - 🛡️ **切换模型不影响推送**——hook 走 plugin 系统、不在 `settings.json`，cc-switch / `/model` / 升级都覆盖不到（不用再装看门狗）
@@ -99,7 +99,7 @@ mkdir -p ~/.config/agent-bark-notify && echo '你的KEY' > ~/.config/agent-bark-
 
 想换成自己的风格：
 
-1. 把上面的内容复制粘贴到 `~/.config/agent-bark-notify/messages.conf`（想直接用作者那套「皮」的风格——舔狗/摆烂/暧昧/暴躁/发疯——看 [messages.example.conf](config/messages.example.conf)）
+1. 把上面的内容复制粘贴到 `~/.config/agent-bark-notify/messages.conf`（想直接用作者那套「皮」的风格——舔狗/摆烂/暴躁/发疯等混搭——看 [messages.example.conf](config/messages.example.conf)）
 2. 改成你想要的词，保存
 
 ```bash
